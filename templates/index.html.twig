@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ToDo List</title>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+	<style type="text/css">
+	.new-task-input {
+		width: 300px;
+		font-size: 24px;
+	}
+	.add-task-button {
+		font-size: 24px;
+	}
+	.task-item {
+		font-size: 24px;
+		border: 1px solid gray;
+		margin-top: 10px;
+		width: 500px;
+		padding: 5px 10px;
+		background-color: #dddddd;
+	}
+	.task-buttons {
+		float: right;
+		display: flex;
+	    align-items: center;
+	    height: 28px;
+	}
+	</style>
+</head>
+<body>
+	<h1>Список задач</h1>
+	<div id="app">
+		<input class="new-task-input" v-model="newTask" type="text" name="">&nbsp;&nbsp;<button class="add-task-button" v-on:click="addTask()">Добавить</button>
+
+		<div class="task-item" v-for="task, i in tasks">
+			{{ "{{ task.name }}" }}
+			<div class="task-buttons">
+				<button v-on:click="editTask(i)">Edit</button>
+			</div>
+			<div class="task-buttons">
+                <button v-on:click="deleteTask(i)">Delete</button> 
+            </div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+	var app = new Vue({
+		el: '#app',
+		data: {
+			newTask: "",
+			tasks: [
+				{% for task in tasks %}
+				{
+					id: {{ task.id }},
+					name: "{{ task.name }}"
+				},
+				{% endfor %}
+			]
+		},
+		methods: {
+			addTask: function(){
+				let handler = function(response){
+					this.tasks.push({
+						id: response.ids,
+						name: this.newTask
+					});
+					this.newTask = "";
+				};
+				$.post('/api/addTask', {name: this.newTask}, $.proxy(handler, this));
+			},
+			editTask: function(i){
+				let handler = function(response){
+					Vue.set(this.tasks, i, this.tasks[i]);
+				};
+				this.tasks[i]['name'] =
+						prompt("Измените задачу:", this.tasks[i]['name']);
+				$.post('/api/editTask', this.tasks[i], $.proxy(handler, this));
+			},
+			deleteTask: function(i){
+   				let handler = function(response){
+       				this.tasks.splice(i, 1);
+   				}
+   				let deleteTask = confirm("Удалить?");
+   				if (deleteTask){
+        			$.post('/api/deleteTask', this.tasks[i], $.proxy(handler, this));
+   				}
+			}
+		}
+	});
+	</script>
+</body>
+</html>

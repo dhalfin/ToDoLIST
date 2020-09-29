@@ -1,0 +1,15 @@
+index:
+   path: /
+   controller: App\Controller\IndexController::index
+
+addTask:
+   path: /api/addTask
+   controller: App\Controller\IndexController::addTask
+
+editTask:
+   path: /api/editTask
+   controller: App\Controller\IndexController::editTask
+
+deleteTask:
+   path: /api/deleteTask
+   controller: App\Controller\IndexController::deleteTask
